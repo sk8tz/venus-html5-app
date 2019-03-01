@@ -4,14 +4,29 @@ import PropTypes from "prop-types"
 import { formatNumber } from "../NumericValue"
 
 class CurrentLimitIncrementor extends Component {
+  state = { loading: undefined }
+
+  onLimitChanged = limit => {
+    this.props.onInputLimitChanged(limit)
+    this.setState({ loading: limit })
+  }
+
+  componentDidUpdate = prevProps => {
+    if (prevProps.currentLimit != this.props.currentLimit) {
+      this.setState({ loading: undefined })
+    }
+  }
+
   render() {
-    const { currentLimit, onInputLimitChanged } = this.props
+    const { currentLimit } = this.props
     return (
-      <div>
+      <>
         <SelectorButton
           narrow
+          disabled={this.state.loading}
+          loading={this.state.loading < currentLimit}
           className="metric__current-input-limit__decrement"
-          onClick={() => onInputLimitChanged(currentLimit - 1)}
+          onClick={() => this.onLimitChanged(currentLimit - 1)}
         >
           <span className="text--small">-</span>
         </SelectorButton>
@@ -20,12 +35,14 @@ class CurrentLimitIncrementor extends Component {
         </span>
         <SelectorButton
           narrow
+          disabled={this.state.loading}
+          loading={this.state.loading > currentLimit}
           className="metric__current-input-limit__increment"
-          onClick={() => onInputLimitChanged(currentLimit + 1)}
+          onClick={() => this.onLimitChanged(currentLimit + 1)}
         >
           <span className="text--small">+</span>
         </SelectorButton>
-      </div>
+      </>
     )
   }
 }

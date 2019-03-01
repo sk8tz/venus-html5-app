@@ -1,22 +1,23 @@
 import React, { Component } from "react"
 import classNames from "classnames"
 
-// Keep as class component to allow refs
+import { Spinner } from "../Spinner"
+
 class SelectorButton extends Component {
   render() {
-    const { disabled, active, narrow, onClick, className, children } = this.props
+    const { disabled, active, loading, narrow, onClick, className, children } = this.props
     return (
       <button
         disabled={disabled}
-        onClick={onClick}
+        onClick={!active ? onClick : () => {}}
         className={classNames(
           "selector-button",
           "text",
-          { "selector-button--active": active, "selector-button--narrow": narrow },
+          { "selector-button--active": active, "selector-button--narrow": narrow, "selector-button--loading": loading },
           className || ""
         )}
       >
-        {children}
+        {loading ? <Spinner /> : children}
       </button>
     )
   }

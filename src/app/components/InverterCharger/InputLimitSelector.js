@@ -22,7 +22,8 @@ const getTopics = (portalId, vebusInstanceId, shorePowerInput) => {
 
 class InputLimitSelector extends Component {
   state = {
-    showEmpties: false
+    showEmpties: false,
+    loading: null
   }
 
   firstSelectorButtonNode = null
@@ -45,6 +46,18 @@ class InputLimitSelector extends Component {
     }
   }
 
+  onLimitSelected = limit => {
+    this.props.updateLimitSelected(limit)
+    this.setState({ loading: limit })
+  }
+
+  componentDidUpdate = prevProps => {
+    if (prevProps.currentLimit !== this.props.currentLimit) {
+      this.props.onLimitSelected()
+      this.setState({ loading: null })
+    }
+  }
+
   componentDidMount() {
     const container = this.amperageContainerNode
     const selectorButton = this.firstSelectorButtonNode
@@ -53,26 +66,27 @@ class InputLimitSelector extends Component {
   }
 
   render() {
-    const { currentLimitMax = 100, productId, currentLimit, onLimitSelected } = this.props
+    const { currentLimitMax = 100, productId, currentLimit } = this.props
     const amperageList = this.getSuggestedAmperageValuesList(productId).filter(value => {
       return value <= currentLimitMax
     })
-    const currentlySelectedLimit = parseInt(currentLimit)
 
     return (
       <div className="amperage-selector__container">
         <div className="amperage-selector" ref={node => (this.amperageContainerNode = node)}>
           <div className="text text--large text--center amperage-selector__description">Select shore input limit</div>
-          {amperageList.map((currentValue, index) => {
+          {amperageList.map((a, index) => {
             return (
               <SelectorButton
-                key={currentValue}
+                key={a}
                 className={"selector-button__amperage text--very-large"}
-                active={currentlySelectedLimit === currentValue}
-                onClick={() => onLimitSelected(currentValue)}
+                active={(!this.state.loading && currentLimit === a) || this.state.loading === a}
+                disabled={this.state.loading}
+                loading={this.state.loading === a}
+                onClick={() => this.onLimitSelected(a)}
                 ref={node => (index === 0 ? (this.firstSelectorButtonNode = node) : null)}
               >
-                {currentValue}A
+                {a}A
               </SelectorButton>
             )
           })}
@@ -110,10 +124,8 @@ class InputLimitSelectorWithData extends Component {
                       return (
                         <InputLimitSelector
                           {...topics}
-                          onLimitSelected={value => {
-                            updateLimitSelected(value)
-                            onLimitSelected()
-                          }}
+                          updateLimitSelected={updateLimitSelected}
+                          onLimitSelected={onLimitSelected}
                         />
                       )
                     }}

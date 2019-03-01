@@ -42,7 +42,7 @@ export const ACTIVE_INPUT = {
   NONE: 240 // Inverting
 }
 
-export const SYSTEM_MODE = {
+export const INVERTER_CHARGER_MODE = {
   CHARGER_ONLY: 1,
   INVERTER_ONLY: 2,
   ON: 3,

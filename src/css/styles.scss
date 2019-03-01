@@ -85,10 +85,6 @@ main {
   background-color: rgba(18, 26, 40, 1);
 }
 
-.metrics-container--single-col .metric {
-  margin-bottom: $smallMarginBottom;
-}
-
 .metric__icon {
   height: 45px;
   @media #{$tiny} {

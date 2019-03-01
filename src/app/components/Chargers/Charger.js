@@ -1,4 +1,4 @@
-import React from "react"
+import React, { Component } from "react"
 
 import CurrentLimitIncrementor from "./CurrentLimitIncrementor"
 import HeaderView from "../../components/HeaderView"
@@ -31,9 +31,9 @@ const getTopics = (portalId, deviceInstanceId) => {
 const chargerModeFormatter = value => {
   switch (value) {
     case CHARGER_MODE.OFF:
-      return "OFF"
+      return "Off"
     case CHARGER_MODE.ON:
-      return "ON"
+      return "On"
     default:
       return "--"
   }
@@ -48,43 +48,71 @@ const output = current => (
   </div>
 )
 
-const Charger = ({ customName, current, state, mode, currentLimit, onModeSelected, onChangeInputLimitClicked }) => {
-  // When a topic is invalid, it returns undefined -> no value means topic is not supported
-  const chargerSupportsMode = mode !== undefined
-  const chargerSupportsInputLimit = currentLimit !== undefined
-  const chargerMode = chargerModeFormatter(mode)
+class Charger extends Component {
+  state = { loading: null }
 
-  return (
-    <div className="metric charger">
-      <div className="charger__header-wrapper">
-        <HeaderView
-          icon={require("../../../images/icons/multiplus.svg")}
-          title={customName || "Charger"}
-          subTitle={systemStateFormatter(state)}
-          child
-        />
-        {chargerSupportsInputLimit && (
-          <div className="charger__input-limit-selector">
-            {currentLimit !== null &&
-              currentLimit !== undefined && (
-                <CurrentLimitIncrementor currentLimit={currentLimit} onInputLimitChanged={onChangeInputLimitClicked} />
-              )}
+  onModeSelected = mode => {
+    this.props.onModeSelected(mode)
+    this.setState({ loading: mode })
+  }
+
+  componentDidUpdate = prevProps => {
+    if (prevProps.mode != this.props.mode) {
+      this.setState({ loading: null })
+    }
+  }
+
+  render() {
+    const { customName, current, state, mode, currentLimit, onChangeInputLimitClicked } = this.props
+    // When a topic is invalid, it returns undefined -> no value means topic is not supported
+    const chargerSupportsMode = mode !== undefined
+    const chargerSupportsInputLimit = currentLimit !== undefined
+
+    return (
+      <div className="metric charger">
+        <div className="charger__header-wrapper">
+          <HeaderView
+            icon={require("../../../images/icons/multiplus.svg")}
+            title={customName || "Charger"}
+            subTitle={systemStateFormatter(state)}
+            child
+          />
+          {chargerSupportsInputLimit && (
+            <div className="charger__input-limit-selector">
+              {currentLimit !== null &&
+                currentLimit !== undefined && (
+                  <CurrentLimitIncrementor
+                    currentLimit={currentLimit}
+                    onInputLimitChanged={onChangeInputLimitClicked}
+                  />
+                )}
+            </div>
+          )}
+        </div>
+        <div className="charger__output">{output(current)}</div>
+        {chargerSupportsMode && (
+          <div className="charger__mode-selector">
+            <SelectorButton
+              disabled={this.state.loading}
+              active={(!this.state.loading && mode === CHARGER_MODE.ON) || this.state.loading === CHARGER_MODE.ON}
+              loading={this.state.loading === CHARGER_MODE.ON}
+              onClick={() => this.onModeSelected(CHARGER_MODE.ON)}
+            >
+              {chargerModeFormatter(CHARGER_MODE.ON)}
+            </SelectorButton>
+            <SelectorButton
+              disabled={this.state.loading}
+              active={(!this.state.loading && mode === CHARGER_MODE.OFF) || this.state.loading === CHARGER_MODE.OFF}
+              loading={this.state.loading === CHARGER_MODE.OFF}
+              onClick={() => this.onModeSelected(CHARGER_MODE.OFF)}
+            >
+              {chargerModeFormatter(CHARGER_MODE.OFF)}
+            </SelectorButton>
           </div>
         )}
       </div>
-      <div className="charger__output">{output(current)}</div>
-      {chargerSupportsMode && (
-        <div className="charger__mode-selector">
-          <SelectorButton active={chargerMode === "ON"} onClick={() => onModeSelected(CHARGER_MODE.ON)}>
-            On
-          </SelectorButton>
-          <SelectorButton active={chargerMode === "OFF"} onClick={() => onModeSelected(CHARGER_MODE.OFF)}>
-            Off
-          </SelectorButton>
-        </div>
-      )}
-    </div>
-  )
+    )
+  }
 }
 
 const ChargerWithData = ({ portalId, deviceInstanceId, metricsRef }) => (

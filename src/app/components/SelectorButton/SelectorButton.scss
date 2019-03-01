@@ -26,3 +26,9 @@
 .selector-button--narrow {
   padding: 13px 30px;
 }
+
+.selector-button--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -70,11 +70,7 @@ export default class Metrics extends Component {
     const commonProps = { portalId, inverterChargerDeviceId, metricsRef: this.metricsRef }
     const style = this.state.layoutCols === 2 ? { height: this.state.height } : {}
     return (
-      <div
-        className={classnames("metrics-container", { "metrics-container--single-col": this.state.layoutCols === 1 })}
-        ref={this.metricsRef}
-        style={style}
-      >
+      <div className="metrics-container" ref={this.metricsRef} style={style}>
         <Battery {...commonProps} />
         {!!inverterChargerDeviceId && <AcLoads {...commonProps} />}
         <DcLoads {...commonProps} />
